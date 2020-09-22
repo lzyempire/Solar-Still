@@ -15,7 +15,7 @@ Solar Still is an ancient desalination device. It absorbed the sunlight and turn
 
 This is a picture of typical solar still.
 
-![](C:\Users\win\Documents\R\Solar Still\Solar-Still\My-first-Shiny\Solar Still.png)
+![](\Solar Still.png)
 
 ## Solar Still Energy Efficiency
 
@@ -28,7 +28,7 @@ $$Efficiency = \frac{Water Production * \Delta H}{Solar Energy}$$
 My shiny app showed the solar still performances under different solar energy levels.
 Check the app on https://lzyempire.shinyapps.io/My-first-Shiny/
 
-![](C:\Users\win\Documents\R\Solar Still\Solar-Still\My-first-Shiny\My Shiny App.png)
+![](\My Shiny App.png)
 
 
 ## Acknowledgement
