@@ -5,7 +5,7 @@ data_record <- as.Date("2020-07-03")
 energy_record <- 5
 power_record <- 0
 
-Solar_climate <- read.csv(file = "CR1000_BSRN1000_Min200903.csv", skip = 1, stringsAsFactors = FALSE)
+Solar_climate <- read.csv(file = "CR1000_BSRN1000_Min200921.csv", skip = 1, stringsAsFactors = FALSE)
 Solar_climateUnit <- Solar_climate[1, -c(2, 14:19)]
 Solar_climate <- Solar_climate[c(-1, -2), -c(2, 14:19)] ##Delete two rows of unit, useless columns
 Solar_climate$TIMESTAMP <- ymd_hms(Solar_climate$TIMESTAMP)
@@ -134,37 +134,6 @@ hourlywater_SidewallHeat$TransEfficiency <- hourlywater_SidewallHeat$DeltaWaterE
 ##hourlywater_SidewallHeat <- hourlywater_SidewallHeat[-which((hourlywater_SidewallHeat$TransEfficiency > 80)|(hourlywater_SidewallHeat$TransEfficiency == 0)), ] ##rule out data with unusual transient efficiency
 
 
-hourlywater_Percentage <- rbind(rbind(rbind(cbind(hourlywater_BottomInter[, c("Time", "Percentage")], Still = "Bottom_Interfacial"), cbind(hourlywater_SidewallInter[, c("Time", "Percentage")], Still = "Sidewall_Interfacial")), cbind(hourlywater_FoamBottomInter[, c("Time", "Percentage")], Still = "Foam_Bottom_Interfacial")), cbind(hourlywater_SidewallHeat[, c("Time", "Percentage")], Still = "Sidewall_Bottom_Heating"))
-hourlywater_Production <- rbind(rbind(rbind(cbind(hourlywater_BottomInter[, c("Time", "WaterProduction")], Still = "Bottom_Interfacial"), cbind(hourlywater_SidewallInter[, c("Time", "WaterProduction")], Still = "Sidewall_Interfacial")), cbind(hourlywater_FoamBottomInter[, c("Time", "WaterProduction")], Still = "Foam_Bottom_Interfacial")), cbind(hourlywater_SidewallHeat[, c("Time", "WaterProduction")], Still = "Sidewall_Bottom_Heating"))
-hourlywater_AvgEfficiency <- rbind(rbind(rbind(cbind(hourlywater_BottomInter[, c("Time", "AvgEfficiency")], Still = "Bottom_Interfacial"), cbind(hourlywater_SidewallInter[, c("Time", "AvgEfficiency")], Still = "Sidewall_Interfacial")), cbind(hourlywater_FoamBottomInter[, c("Time", "AvgEfficiency")], Still = "Foam_Bottom_Interfacial")), cbind(hourlywater_SidewallHeat[, c("Time", "AvgEfficiency")], Still = "Sidewall_Bottom_Heating"))
-hourlywater_TransEfficiency <- rbind(rbind(rbind(cbind(hourlywater_BottomInter[, c("Time", "TransEfficiency")], Still = "Bottom_Interfacial"), cbind(hourlywater_SidewallInter[, c("Time", "TransEfficiency")], Still = "Sidewall_Interfacial")), cbind(hourlywater_FoamBottomInter[, c("Time", "TransEfficiency")], Still = "Foam_Bottom_Interfacial")), cbind(hourlywater_SidewallHeat[, c("Time", "TransEfficiency")], Still = "Sidewall_Bottom_Heating"))
-hourlywater_PowerEfficiency <- rbind(rbind(rbind(cbind(hourlywater_BottomInter[, c("TransSolarPower", "TransEfficiency")], Still = "Bottom_Interfacial"), cbind(hourlywater_SidewallInter[, c("TransSolarPower", "TransEfficiency")], Still = "Sidewall_Interfacial")), cbind(hourlywater_FoamBottomInter[, c("TransSolarPower", "TransEfficiency")], Still = "Foam_Bottom_Interfacial")), cbind(hourlywater_SidewallHeat[, c("TransSolarPower", "TransEfficiency")], Still = "Sidewall_Bottom_Heating"))
-
-
-library(ggplot2)
-g <- ggplot(hourlywater_BottomInter, aes(Time/hm("1:00"), Percentage, color = WaterProduction))
-g + geom_point() + labs(x = "DayTime", y = "Normalized Production Percentage") 
-p <- ggplot(hourlywater_SidewallInter, aes(Time/hm("1:00"), Percentage, color = WaterProduction))
-p + geom_point() + labs(x = "DayTime", y = "Normalized Production Percentage") 
-q <- ggplot(hourlywater_FoamBottomInter, aes(Time/hm("1:00"), Percentage, color = WaterProduction))
-q + geom_point() + labs(x = "DayTime", y = "Normalized Production Percentage") 
-
-PercentageBinomial <- ggplot(hourlywater_Percentage, aes(Time/hm("1:00"), Percentage/100, color = Still))
-PercentageBinomial + geom_point(alpha = 0.2) + stat_smooth(method = "glm", method.args = list(family = binomial), se=FALSE) + labs(x = "DayTime", y = "Normalized Production Percentage")## + scale_x_continuous(limits = c(6,24))
-##Percentageloess <- ggplot(hourlywater_Percentage, aes(Time/hm("1:00"), Percentage, color = Still))
-##Percentageloess + geom_point(alpha = 0.2) + stat_smooth(se=FALSE) + labs(x = "DayTime", y = "Normalized Production Percentage") + scale_x_continuous(limits = c(6,20))
-##h <- ggplot(hourlywater_Production, aes(Time/hm("1:00"), WaterProduction, color = Still))
-##h + geom_point(alpha = 0.5) + geom_smooth(se = FALSE) + labs(x = "Time", y = "Production") ##+ scale_x_continuous(limits = c(6,18))
-AvgEff <- ggplot(hourlywater_AvgEfficiency, aes(Time/hm("1:00"), AvgEfficiency, color = Still))
-AvgEff + geom_point(alpha = 0.5) + geom_smooth(se = FALSE) + labs(x = "Time", y = "Daily Average Efficiency/%") + scale_y_continuous(limits = c(0,70)) + scale_x_continuous(limits = c(7,24))
-##TransEff <- ggplot(hourlywater_TransEfficiency[(hourlywater_TransEfficiency$Time/hm("1:00")<18)&(hourlywater_TransEfficiency$Time/hm("1:00")>6), ], aes(Time/hm("1:00"), TransEfficiency, color = Still))
-##TransEff + geom_point(alpha = 0.5) + geom_smooth(se = FALSE) + labs(x = "Time", y = "Hourly Transient Efficiency/%") + scale_y_continuous(limits = c(0,100))## + scale_x_continuous(limits = c(7,20))
-TransEff <- ggplot(hourlywater_TransEfficiency, aes(Time/hm("1:00"), TransEfficiency, color = Still))
-TransEff + geom_point(alpha = 0.2) + geom_smooth(se = FALSE) + labs(x = "Time", y = "Hourly Transient Efficiency/%") + scale_y_continuous(limits = c(10,90)) + scale_x_continuous(limits = c(7,20))
-PowerEff <- ggplot(hourlywater_PowerEfficiency, aes(TransSolarPower*1000, TransEfficiency, color = Still))
-PowerEff + geom_point(alpha = 0.2) + geom_smooth(se = FALSE) + labs(x = "Solar Power/W", y = "Hourly Transient Efficiency/%") + scale_y_continuous(limits = c(10,100)) + scale_x_continuous(limits = c(100,1000))
-
-
 SolarWater_BottomHeat <- read.csv(file = "Bottom Heating Solar Still Water Production.csv", header = FALSE, stringsAsFactors = FALSE)
 hourlywater_BottomHeat <- rbind(rbind(c("0:00", 0), na.omit(SolarWater_BottomHeat[2:length(SolarWater_BottomHeat[, 1]), 1:2]), c("23:59", SolarWater_BottomHeat[1, 2])))
 names(hourlywater_BottomHeat) <- c("Time", "WaterProduction")
@@ -194,3 +163,34 @@ hourlywater_BottomHeat$TransSolarPower <- hourlywater_BottomHeat$DeltaSolarEnerg
 hourlywater_BottomHeat$TransEfficiency <- hourlywater_BottomHeat$DeltaWaterEnergy/hourlywater_BottomHeat$DeltaSolarEnergy*100
 ##hourlywater_BottomHeat$TransEfficiency[(hourlywater_BottomHeat$TransEfficiency > 100)|(hourlywater_BottomHeat$TransEfficiency == 0)] <- 100 ##Set unusual transient efficiency as 100
 ##hourlywater_BottomHeat <- hourlywater_BottomHeat[-which((hourlywater_BottomHeat$TransEfficiency > 80)|(hourlywater_BottomHeat$TransEfficiency == 0)), ] ##rule out data with unusual transient efficiency
+
+hourlywater_Percentage <- rbind(rbind(rbind(rbind(cbind(hourlywater_BottomInter[, c("Time", "Percentage")], Still = "Bottom_Interfacial"), cbind(hourlywater_SidewallInter[, c("Time", "Percentage")], Still = "Sidewall_Interfacial")), cbind(hourlywater_FoamBottomInter[, c("Time", "Percentage")], Still = "Foam_Bottom_Interfacial")), cbind(hourlywater_SidewallHeat[, c("Time", "Percentage")], Still = "Sidewall_Bottom_Heating")), cbind(hourlywater_BottomHeat[, c("Time", "Percentage")], Still = "Bottom_Heating"))
+hourlywater_Production <- rbind(rbind(rbind(rbind(cbind(hourlywater_BottomInter[, c("Time", "WaterProduction")], Still = "Bottom_Interfacial"), cbind(hourlywater_SidewallInter[, c("Time", "WaterProduction")], Still = "Sidewall_Interfacial")), cbind(hourlywater_FoamBottomInter[, c("Time", "WaterProduction")], Still = "Foam_Bottom_Interfacial")), cbind(hourlywater_SidewallHeat[, c("Time", "WaterProduction")], Still = "Sidewall_Bottom_Heating")), cbind(hourlywater_BottomHeat[, c("Time", "WaterProduction")], Still = "Bottom_Heating"))
+hourlywater_AvgEfficiency <- rbind(rbind(rbind(rbind(cbind(hourlywater_BottomInter[, c("Time", "AvgEfficiency")], Still = "Bottom_Interfacial"), cbind(hourlywater_SidewallInter[, c("Time", "AvgEfficiency")], Still = "Sidewall_Interfacial")), cbind(hourlywater_FoamBottomInter[, c("Time", "AvgEfficiency")], Still = "Foam_Bottom_Interfacial")), cbind(hourlywater_SidewallHeat[, c("Time", "AvgEfficiency")], Still = "Sidewall_Bottom_Heating")), cbind(hourlywater_BottomHeat[, c("Time", "AvgEfficiency")], Still = "Bottom_Heating"))
+hourlywater_TransEfficiency <- rbind(rbind(rbind(rbind(cbind(hourlywater_BottomInter[, c("Time", "TransEfficiency")], Still = "Bottom_Interfacial"), cbind(hourlywater_SidewallInter[, c("Time", "TransEfficiency")], Still = "Sidewall_Interfacial")), cbind(hourlywater_FoamBottomInter[, c("Time", "TransEfficiency")], Still = "Foam_Bottom_Interfacial")), cbind(hourlywater_SidewallHeat[, c("Time", "TransEfficiency")], Still = "Sidewall_Bottom_Heating")), cbind(hourlywater_BottomHeat[, c("Time", "TransEfficiency")], Still = "Bottom_Heating"))
+hourlywater_PowerEfficiency <- rbind(rbind(rbind(rbind(cbind(hourlywater_BottomInter[, c("TransSolarPower", "TransEfficiency")], Still = "Bottom_Interfacial"), cbind(hourlywater_SidewallInter[, c("TransSolarPower", "TransEfficiency")], Still = "Sidewall_Interfacial")), cbind(hourlywater_FoamBottomInter[, c("TransSolarPower", "TransEfficiency")], Still = "Foam_Bottom_Interfacial")), cbind(hourlywater_SidewallHeat[, c("TransSolarPower", "TransEfficiency")], Still = "Sidewall_Bottom_Heating")), cbind(hourlywater_BottomHeat[, c("TransSolarPower", "TransEfficiency")], Still = "Bottom_Heating"))
+
+
+library(ggplot2)
+##g <- ggplot(hourlywater_BottomInter, aes(Time/hm("1:00"), Percentage, color = WaterProduction))
+##g + geom_point() + labs(x = "DayTime", y = "Normalized Production Percentage") 
+##p <- ggplot(hourlywater_SidewallInter, aes(Time/hm("1:00"), Percentage, color = WaterProduction))
+##p + geom_point() + labs(x = "DayTime", y = "Normalized Production Percentage") 
+##q <- ggplot(hourlywater_FoamBottomInter, aes(Time/hm("1:00"), Percentage, color = WaterProduction))
+##q + geom_point() + labs(x = "DayTime", y = "Normalized Production Percentage") 
+
+PercentageBinomial <- ggplot(hourlywater_Percentage, aes(Time/hm("1:00"), Percentage/100, color = Still))
+PercentageBinomial + geom_point(alpha = 0.2) + stat_smooth(method = "glm", method.args = list(family = binomial), se=FALSE) + labs(x = "DayTime", y = "Normalized Production Percentage")## + scale_x_continuous(limits = c(6,24))
+##Percentageloess <- ggplot(hourlywater_Percentage, aes(Time/hm("1:00"), Percentage, color = Still))
+##Percentageloess + geom_point(alpha = 0.2) + stat_smooth(se=FALSE) + labs(x = "DayTime", y = "Normalized Production Percentage") + scale_x_continuous(limits = c(6,20))
+##h <- ggplot(hourlywater_Production, aes(Time/hm("1:00"), WaterProduction, color = Still))
+##h + geom_point(alpha = 0.5) + geom_smooth(se = FALSE) + labs(x = "Time", y = "Production") ##+ scale_x_continuous(limits = c(6,18))
+AvgEff <- ggplot(hourlywater_AvgEfficiency, aes(Time/hm("1:00"), AvgEfficiency, color = Still))
+AvgEff + geom_point(alpha = 0.5) + geom_smooth(se = FALSE) + labs(x = "Time", y = "Daily Average Efficiency/%") + scale_y_continuous(limits = c(0,70)) + scale_x_continuous(limits = c(7,24))
+##TransEff <- ggplot(hourlywater_TransEfficiency[(hourlywater_TransEfficiency$Time/hm("1:00")<18)&(hourlywater_TransEfficiency$Time/hm("1:00")>6), ], aes(Time/hm("1:00"), TransEfficiency, color = Still))
+##TransEff + geom_point(alpha = 0.5) + geom_smooth(se = FALSE) + labs(x = "Time", y = "Hourly Transient Efficiency/%") + scale_y_continuous(limits = c(0,100))## + scale_x_continuous(limits = c(7,20))
+TransEff <- ggplot(hourlywater_TransEfficiency, aes(Time/hm("1:00"), TransEfficiency, color = Still))
+TransEff + geom_point(alpha = 0.2) + geom_smooth(se = FALSE) + labs(x = "Time", y = "Hourly Transient Efficiency/%") + scale_y_continuous(limits = c(10,90)) + scale_x_continuous(limits = c(7,20))
+PowerEff <- ggplot(hourlywater_PowerEfficiency, aes(TransSolarPower*1000, TransEfficiency, color = Still))
+PowerEff + geom_point(alpha = 0.2) + geom_smooth(se = FALSE) + labs(x = "Solar Power/W", y = "Hourly Transient Efficiency/%") + scale_y_continuous(limits = c(10,100)) + scale_x_continuous(limits = c(100,1000))
+

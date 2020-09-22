@@ -2,6 +2,7 @@
 setwd("D:/R/Solar Still")
 library(lubridate)
 data_record <- as.Date("2020-07-03")
+data_small <- as.Date("2020-09-15")
 SolarWater <- read.csv(file = "Foam Bottom Interfacial Solar Still Water Production.csv", header = FALSE, stringsAsFactors = FALSE)
 SolarWater_Day <- c(SolarWater[1, 1], SolarWater[1, 2])
 for(i in 2:(length(SolarWater)/2)){
@@ -13,20 +14,22 @@ names(SolarWater_Day) <- c("Date", "Water_Production")
 row.names(SolarWater_Day) <- SolarWater_Day[, 1]
 SolarWater_Day$Date <- ymd(SolarWater_Day$Date)
 SolarWater_Day <- SolarWater_Day[SolarWater_Day$Date >= data_record, ]
-SolarWater_Day$Water_Production <- as.numeric(SolarWater_Day$Water_Production)*4/1000
+SolarWater_Day$Water_Production[SolarWater_Day$Date <= data_small] <- as.numeric(SolarWater_Day$Water_Production[SolarWater_Day$Date <= data_small])/(0.5*0.5)/1000
+SolarWater_Day$Water_Production[SolarWater_Day$Date > data_small] <- as.numeric(SolarWater_Day$Water_Production[SolarWater_Day$Date > data_small])/(0.5*0.42)/1000
+SolarWater_Day$Water_Production <- as.numeric(SolarWater_Day$Water_Production)
 SolarWater_Day$Water_Energy <- SolarWater_Day$Water_Production/1.5
 
 ##Get solar environment daily data
 setwd("D:/R/Solar Still")
 library(lubridate)
-SolarEnv_Day <- read.csv(file = "CR1000_BSRN1000_Day200822.csv", skip = 1, stringsAsFactors = FALSE)
+SolarEnv_Day <- read.csv(file = "CR1000_BSRN1000_Day200921.csv", skip = 1, stringsAsFactors = FALSE)
 ##SolarEnvUnit_Day <- SolarEnv_Day[1, ]
 SolarEnv_Day <- SolarEnv_Day[c(-1, -2), ] ##Delete two rows of unit
 SolarEnv_Day$TIMESTAMP <- as.Date(ymd_hms(SolarEnv_Day$TIMESTAMP))
 SolarEnv_Day$TIMESTAMP <- SolarEnv_Day$TIMESTAMP - ddays(1)
 SolarEnv_Day[, 2:39] <- lapply(SolarEnv_Day[, 2:39], as.numeric)
 ##Select data column and analysis
-datacol <- c("TIMESTAMP", "Global_Energy_Tot") ##, "Direct_Energy_Tot"
+datacol <- c("TIMESTAMP", "Global_Energy_Tot", "Direct_Energy_Tot", "Diffuse_Energy_Tot")
 SolarData_Day <- SolarEnv_Day[c(SolarEnv_Day$TIMESTAMP >= data_record), datacol]
 row.names(SolarData_Day) <- SolarData_Day[, 1]
 ##SolarDataUnit_Day <- SolarEnvUnit_Day[datacol]

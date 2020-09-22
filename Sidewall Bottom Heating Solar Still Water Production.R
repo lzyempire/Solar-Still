@@ -19,14 +19,14 @@ SolarWater_Day$Water_Energy <- SolarWater_Day$Water_Production/1.5
 ##Get solar environment daily data
 setwd("D:/R/Solar Still")
 library(lubridate)
-SolarEnv_Day <- read.csv(file = "CR1000_BSRN1000_Day200903.csv", skip = 1, stringsAsFactors = FALSE)
+SolarEnv_Day <- read.csv(file = "CR1000_BSRN1000_Day200921.csv", skip = 1, stringsAsFactors = FALSE)
 SolarEnvUnit_Day <- SolarEnv_Day[1, ]
 SolarEnv_Day <- SolarEnv_Day[c(-1, -2), ] ##Delete two rows of unit
 SolarEnv_Day$TIMESTAMP <- as.Date(ymd_hms(SolarEnv_Day$TIMESTAMP))
 SolarEnv_Day$TIMESTAMP <- SolarEnv_Day$TIMESTAMP - ddays(1)
 SolarEnv_Day[, 2:39] <- lapply(SolarEnv_Day[, 2:39], as.numeric)
 ##Select data column and analysis
-datacol <- c("TIMESTAMP", "Global_Energy_Tot")##, "Direct_Energy_Tot"
+datacol <- c("TIMESTAMP", "Global_Energy_Tot", "Direct_Energy_Tot", "Diffuse_Energy_Tot")
 SolarData_Day <- SolarEnv_Day[c(SolarEnv_Day$TIMESTAMP >= data_record), datacol]
 row.names(SolarData_Day) <- SolarData_Day[, 1]
 SolarDataUnit_Day <- SolarEnvUnit_Day[datacol]
