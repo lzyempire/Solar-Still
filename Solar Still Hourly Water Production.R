@@ -1,15 +1,23 @@
 ##Get solar still water hourly production data
 setwd("D:/R/Solar Still")
 library(lubridate)
+library(dplyr)
 data_record <- as.Date("2020-07-03")
 energy_record <- 5
 power_record <- 0
 
+SolarEnv_Day <- read.csv(file = "CR1000_BSRN1000_Day200921.csv", skip = 1, stringsAsFactors = FALSE)
+SolarEnv_Day <- SolarEnv_Day[c(-1, -2), -(24:39)] ##Delete two rows of unit, 24-39 colunm
+SolarEnv_Day$TIMESTAMP <- as.Date(ymd_hms(SolarEnv_Day$TIMESTAMP))
+SolarEnv_Day <- SolarEnv_Day[SolarEnv_Day$TIMESTAMP >= data_record, ]
+SolarEnv_Day$Date <- SolarEnv_Day$TIMESTAMP - ddays(1)
+SolarEnv_Day[, 2:23] <- lapply(SolarEnv_Day[, 2:23], as.numeric)
 Solar_climate <- read.csv(file = "CR1000_BSRN1000_Min200921.csv", skip = 1, stringsAsFactors = FALSE)
-Solar_climateUnit <- Solar_climate[1, -c(2, 14:19)]
 Solar_climate <- Solar_climate[c(-1, -2), -c(2, 14:19)] ##Delete two rows of unit, useless columns
 Solar_climate$TIMESTAMP <- ymd_hms(Solar_climate$TIMESTAMP)
 Solar_climate <- Solar_climate[date(Solar_climate$TIMESTAMP) >= data_record, ]
+Solar_climate[, 2:length(Solar_climate)] <- lapply(Solar_climate[, 2:length(Solar_climate)], as.numeric)
+
 
 SolarWater_FoamBottomInter <- read.csv(file = "Foam Bottom Interfacial Solar Still Water Production.csv", header = FALSE, stringsAsFactors = FALSE)
 hourlywater_FoamBottomInter <- rbind(rbind(c("0:00", 0), na.omit(SolarWater_FoamBottomInter[2:length(SolarWater_FoamBottomInter[, 1]), 1:2]), c("23:59", SolarWater_FoamBottomInter[1, 2])))
@@ -32,8 +40,10 @@ hourlywater_FoamBottomInter <- hourlywater_FoamBottomInter[(hourlywater_FoamBott
 hourlywater_FoamBottomInter$SolarEnergy <- as.numeric(Solar_climate$Global_Energy_Day[Solar_climate$TIMESTAMP %in% (hourlywater_FoamBottomInter$Date + hourlywater_FoamBottomInter$Time)])
 hourlywater_FoamBottomInter$DeltaTime <- c(0, time_length(int_diff(hourlywater_FoamBottomInter$Date + hourlywater_FoamBottomInter$Time), "hours"))
 hourlywater_FoamBottomInter$DeltaSolarEnergy <- c(0, diff(hourlywater_FoamBottomInter$SolarEnergy))
+##Set delta solar energy < 0 data = 0
 hourlywater_FoamBottomInter$DeltaSolarEnergy[hourlywater_FoamBottomInter$DeltaSolarEnergy < 0] <- 0
 hourlywater_FoamBottomInter$DeltaWaterEnergy <- c(0, diff(hourlywater_FoamBottomInter$WaterEnergy))
+##Set delta water energy < 0 data = 0
 hourlywater_FoamBottomInter$DeltaWaterEnergy[hourlywater_FoamBottomInter$DeltaWaterEnergy < 0] <- 0
 hourlywater_FoamBottomInter$AvgEfficiency <- hourlywater_FoamBottomInter$WaterEnergy/hourlywater_FoamBottomInter$SolarEnergy*100
 hourlywater_FoamBottomInter$TransSolarPower <- hourlywater_FoamBottomInter$DeltaSolarEnergy/hourlywater_FoamBottomInter$DeltaTime
@@ -170,6 +180,22 @@ hourlywater_AvgEfficiency <- rbind(rbind(rbind(rbind(cbind(hourlywater_BottomInt
 hourlywater_TransEfficiency <- rbind(rbind(rbind(rbind(cbind(hourlywater_BottomInter[, c("Time", "TransEfficiency")], Still = "Bottom_Interfacial"), cbind(hourlywater_SidewallInter[, c("Time", "TransEfficiency")], Still = "Sidewall_Interfacial")), cbind(hourlywater_FoamBottomInter[, c("Time", "TransEfficiency")], Still = "Foam_Bottom_Interfacial")), cbind(hourlywater_SidewallHeat[, c("Time", "TransEfficiency")], Still = "Sidewall_Bottom_Heating")), cbind(hourlywater_BottomHeat[, c("Time", "TransEfficiency")], Still = "Bottom_Heating"))
 hourlywater_PowerEfficiency <- rbind(rbind(rbind(rbind(cbind(hourlywater_BottomInter[, c("TransSolarPower", "TransEfficiency")], Still = "Bottom_Interfacial"), cbind(hourlywater_SidewallInter[, c("TransSolarPower", "TransEfficiency")], Still = "Sidewall_Interfacial")), cbind(hourlywater_FoamBottomInter[, c("TransSolarPower", "TransEfficiency")], Still = "Foam_Bottom_Interfacial")), cbind(hourlywater_SidewallHeat[, c("TransSolarPower", "TransEfficiency")], Still = "Sidewall_Bottom_Heating")), cbind(hourlywater_BottomHeat[, c("TransSolarPower", "TransEfficiency")], Still = "Bottom_Heating"))
 
+hourlysolar <- Solar_climate[, c("TIMESTAMP", "Global_Energy_Day", "Direct_Energy_Day", "Diffuse_Energy_Day")]
+hourlysolar$Date <- as.Date(date(hourlysolar$TIMESTAMP))
+hourlysolar$Time <- as.numeric(hourlysolar$TIMESTAMP - as.POSIXct(hourlysolar$Date))/3600
+hourlysolar <- hourlysolar[hourlysolar$Time %in% (hourlywater_Percentage$Time/hm("1:00")), ]
+hourlysolar <- hourlysolar %>% left_join(SolarEnv_Day[, c("Date", "Global_Energy_Tot", "Direct_Energy_Tot", "Diffuse_Energy_Tot")], by = "Date")
+hourlysolar$GlobalPercentage <- hourlysolar$Global_Energy_Day/hourlysolar$Global_Energy_Tot
+hourlysolar$DirectPercentage <- hourlysolar$Direct_Energy_Day/hourlysolar$Direct_Energy_Tot
+hourlysolar$DiffusePercentage <- hourlysolar$Diffuse_Energy_Day/hourlysolar$Diffuse_Energy_Tot
+hourlywater_solar <- na.omit(hourlysolar[, c("Time", "GlobalPercentage")])
+hourlywater_solar <- with(hourlywater_solar, tapply(GlobalPercentage, as.factor(Time), mean))
+hourlywater_solar <- cbind(as.data.frame.table(hourlywater_solar), Still = "Global Radiation")
+names(hourlywater_solar) <- names(hourlywater_Percentage)
+hourlywater_solar$Percentage <- as.numeric(hourlywater_solar$Percentage) * 100
+hourlywater_solar$Time <- as.numeric(as.character(hourlywater_solar$Time))
+hourlywater_Percentage$Time <- hourlywater_Percentage$Time/hm("1:00")
+hourlywater_Percentage <- rbind(hourlywater_Percentage, hourlywater_solar)
 
 library(ggplot2)
 ##g <- ggplot(hourlywater_BottomInter, aes(Time/hm("1:00"), Percentage, color = WaterProduction))
@@ -178,8 +204,15 @@ library(ggplot2)
 ##p + geom_point() + labs(x = "DayTime", y = "Normalized Production Percentage") 
 ##q <- ggplot(hourlywater_FoamBottomInter, aes(Time/hm("1:00"), Percentage, color = WaterProduction))
 ##q + geom_point() + labs(x = "DayTime", y = "Normalized Production Percentage") 
+##GlobalPercentageBinomial <- ggplot(hourlysolar[(hourlysolar$GlobalPercentage <= 1) & (hourlysolar$GlobalPercentage >= 0), ], aes(Time, GlobalPercentage, color = as.factor(month(Date))))
+##GlobalPercentageBinomial + geom_point(alpha = 0.01) + stat_smooth(method = "glm", method.args = list(family = binomial), se=FALSE) + labs(x = "DayTime", y = "Normalized Solar Radiation Percentage")## + scale_x_continuous(limits = c(6,24))
+##DirectPercentageBinomial <- ggplot(hourlysolar[(hourlysolar$DirectPercentage <= 1) & (hourlysolar$DirectPercentage >= 0), ], aes(Time, DirectPercentage))
+##DirectPercentageBinomial + geom_point(alpha = 0.2) + stat_smooth(method = "glm", method.args = list(family = binomial), se=FALSE) + labs(x = "DayTime", y = "Normalized Solar Radiation Percentage")## + scale_x_continuous(limits = c(6,24))
+##DiffusePercentageBinomial <- ggplot(hourlysolar[(hourlysolar$DiffusePercentage <= 1) & (hourlysolar$DiffusePercentage >= 0), ], aes(Time, DiffusePercentage))
+##DiffusePercentageBinomial + geom_point(alpha = 0.2) + stat_smooth(method = "glm", method.args = list(family = binomial), se=FALSE) + labs(x = "DayTime", y = "Normalized Solar Radiation Percentage")## + scale_x_continuous(limits = c(6,24))
 
-PercentageBinomial <- ggplot(hourlywater_Percentage, aes(Time/hm("1:00"), Percentage/100, color = Still))
+
+PercentageBinomial <- ggplot(hourlywater_Percentage, aes(Time, Percentage/100, color = Still))
 PercentageBinomial + geom_point(alpha = 0.2) + stat_smooth(method = "glm", method.args = list(family = binomial), se=FALSE) + labs(x = "DayTime", y = "Normalized Production Percentage")## + scale_x_continuous(limits = c(6,24))
 ##Percentageloess <- ggplot(hourlywater_Percentage, aes(Time/hm("1:00"), Percentage, color = Still))
 ##Percentageloess + geom_point(alpha = 0.2) + stat_smooth(se=FALSE) + labs(x = "DayTime", y = "Normalized Production Percentage") + scale_x_continuous(limits = c(6,20))
