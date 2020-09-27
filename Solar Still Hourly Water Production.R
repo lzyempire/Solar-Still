@@ -190,7 +190,7 @@ hourlysolar$DirectPercentage <- hourlysolar$Direct_Energy_Day/hourlysolar$Direct
 hourlysolar$DiffusePercentage <- hourlysolar$Diffuse_Energy_Day/hourlysolar$Diffuse_Energy_Tot
 hourlywater_solar <- na.omit(hourlysolar[, c("Time", "GlobalPercentage")])
 hourlywater_solar <- with(hourlywater_solar, tapply(GlobalPercentage, as.factor(Time), mean))
-hourlywater_solar <- cbind(as.data.frame.table(hourlywater_solar), Still = "Global Radiation")
+hourlywater_solar <- cbind(as.data.frame.table(hourlywater_solar), Still = "Average_Global_Radiation")
 names(hourlywater_solar) <- names(hourlywater_Percentage)
 hourlywater_solar$Percentage <- as.numeric(hourlywater_solar$Percentage) * 100
 hourlywater_solar$Time <- as.numeric(as.character(hourlywater_solar$Time))
@@ -213,7 +213,7 @@ library(ggplot2)
 
 
 PercentageBinomial <- ggplot(hourlywater_Percentage, aes(Time, Percentage/100, color = Still))
-PercentageBinomial + geom_point(alpha = 0.2) + stat_smooth(method = "glm", method.args = list(family = binomial), se=FALSE) + labs(x = "DayTime", y = "Normalized Production Percentage")## + scale_x_continuous(limits = c(6,24))
+PercentageBinomial + geom_point(alpha = 0.1) + stat_smooth(method = "glm", method.args = list(family = binomial), se=FALSE) + labs(x = "DayTime", y = "Normalized Production Percentage")## + scale_x_continuous(limits = c(6,24))
 ##Percentageloess <- ggplot(hourlywater_Percentage, aes(Time/hm("1:00"), Percentage, color = Still))
 ##Percentageloess + geom_point(alpha = 0.2) + stat_smooth(se=FALSE) + labs(x = "DayTime", y = "Normalized Production Percentage") + scale_x_continuous(limits = c(6,20))
 ##h <- ggplot(hourlywater_Production, aes(Time/hm("1:00"), WaterProduction, color = Still))
