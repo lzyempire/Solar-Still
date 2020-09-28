@@ -7,7 +7,7 @@ Still_BottomHeat <- read.csv(file = "Bottom Heating Solar Still Daily Water Prod
 Still_SidewallHeat <- read.csv(file = "Sidewall Bottom Heating Solar Still Daily Water Production.csv", header = TRUE, stringsAsFactors = FALSE)
 StillNames <- c("Bottom_Heating", "Sidewall_Bottom_Heating", "Bottom_Interfacial", "Foam_Bottom_Interfacial", "Sidewall_Interfacial")
 
-SolarEnv_Day <- read.csv(file = "CR1000_BSRN1000_Day200921.csv", skip = 1, stringsAsFactors = FALSE)
+SolarEnv_Day <- read.csv(file = "CR1000_BSRN1000_Day200925.csv", skip = 1, stringsAsFactors = FALSE)
 SolarEnv_Day <- SolarEnv_Day[c(-1, -2), ] ##Delete two rows of unit
 SolarEnv_Day$TIMESTAMP <- as.Date(ymd_hms(SolarEnv_Day$TIMESTAMP))
 SolarEnv_Day$TIMESTAMP <- SolarEnv_Day$TIMESTAMP - ddays(1)
@@ -29,7 +29,7 @@ WaterProduction_Efficiency <- Still_BottomHeat[, c("TIMESTAMP", "Global_Efficien
   left_join(SolarEnv_Day[, c("TIMESTAMP", "Global_Energy_Tot", "Direct_Energy_Tot", "Diffuse_Energy_Tot")], by = "TIMESTAMP")
 names(WaterProduction_Efficiency) <- c("Date", StillNames, "Solar_Energy", "Direct_Energy", "Diffuse_Energy")
 write.csv(WaterProduction_Efficiency, file = "Water Efficiency.csv")
-
+Diffuse_Efficiency <- WaterProduction_Efficiency[WaterProduction_Efficiency$Direct_Energy < 1, ]
 
 library(reshape2)
 Water_Energy <- melt(WaterProduction_Energy, id = "Date")
@@ -37,8 +37,8 @@ Water_Energy$Date <- ymd(Water_Energy$Date)
 Water_Eff <- melt(WaterProduction_Efficiency, id = "Date")
 Water_Eff$Date <- ymd(Water_Eff$Date)
 Solar_Eff <- melt(WaterProduction_Efficiency[, c("Solar_Energy", StillNames)], id = "Solar_Energy")
-Direct_Eff <- melt(WaterProduction_Efficiency[, c("Direct_Energy", StillNames)], id = "Direct_Energy")
-Diffuse_Eff <- melt(WaterProduction_Efficiency[, c("Diffuse_Energy", StillNames)], id = "Diffuse_Energy")
+##Direct_Eff <- melt(WaterProduction_Efficiency[, c("Direct_Energy", StillNames)], id = "Direct_Energy")
+Diffuse_Eff <- melt(Diffuse_Efficiency[, c("Diffuse_Energy", StillNames)], id = "Diffuse_Energy")
 Total_eff <- melt(WaterProduction_Efficiency[, c("Solar_Energy", "Direct_Energy", "Diffuse_Energy", StillNames)], id = c("Solar_Energy", "Direct_Energy", "Diffuse_Energy"))
 names(Total_eff) <- c("Solar_Energy", "Direct_Energy", "Diffuse_Energy", "Still_Type", "Efficiency")
 
@@ -47,8 +47,8 @@ library(ggplot2)
 ##g + geom_bar(stat = 'identity', position='dodge') + labs(x = "Date", y = "Energy/kWh") 
 SolarEff <- ggplot(Solar_Eff, aes(Solar_Energy, value*100, color = variable))
 SolarEff + geom_point() + labs(x = "Solar Energy/kWh", y = "Efficiency/%") + geom_smooth(method="loess",se=FALSE)
-DirectEff <- ggplot(Direct_Eff, aes(Direct_Energy, value*100, color = variable))
-DirectEff + geom_point() + labs(x = "Direct Energy/kWh", y = "Efficiency/%") + geom_smooth(method="loess",se=FALSE)
+##DirectEff <- ggplot(Direct_Eff, aes(Direct_Energy, value*100, color = variable))
+##DirectEff + geom_point() + labs(x = "Direct Energy/kWh", y = "Efficiency/%") + geom_smooth(method="loess",se=FALSE)
 DiffuseEff <- ggplot(Diffuse_Eff, aes(Diffuse_Energy, value*100, color = variable))
 DiffuseEff + geom_point() + labs(x = "Diffuse Energy/kWh", y = "Efficiency/%") + geom_smooth(method="loess",se=FALSE)
 ##q <- ggplot(Water_Eff, aes(Date, value*100, fill = variable))

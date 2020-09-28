@@ -19,7 +19,7 @@ SolarWater_Day$Water_Energy <- SolarWater_Day$Water_Production/1.5
 ##Get solar environment daily data
 setwd("D:/R/Solar Still")
 library(lubridate)
-SolarEnv_Day <- read.csv(file = "CR1000_BSRN1000_Day200921.csv", skip = 1, stringsAsFactors = FALSE)
+SolarEnv_Day <- read.csv(file = "CR1000_BSRN1000_Day200925.csv", skip = 1, stringsAsFactors = FALSE)
 SolarEnvUnit_Day <- SolarEnv_Day[1, ]
 SolarEnv_Day <- SolarEnv_Day[c(-1, -2), ] ##Delete two rows of unit
 SolarEnv_Day$TIMESTAMP <- as.Date(ymd_hms(SolarEnv_Day$TIMESTAMP))
@@ -37,6 +37,11 @@ SolarData_Day$Global_Efficiency <- SolarData_Day$Water_Energy/SolarData_Day$Glob
 ##SolarData_Day$Direct_Efficiency <- SolarData_Day$Water_Energy/SolarData_Day$Direct_Energy_Tot
 write.csv(SolarData_Day, file = "Bottom Interfacial Solar Still Daily Water Production.csv")
 
+SolarData_Day$DirDiffRatio <- SolarData_Day$Direct_Energy_Tot/SolarData_Day$Diffuse_Energy_Tot
+SolarData_Day$DirDiff <- cut(SolarData_Day$DirDiffRatio, breaks = c(min(SolarData_Day$DirDiffRatio), 0.1, 1, max(SolarData_Day$DirDiffRatio)), labels = c("Cloudy", "Between", "Clear"))
+
+
+
 library(ggplot2)
 ##fit1 <- lm(Water_Energy ~ Global_Energy_Tot + Direct_Energy_Tot, data = na.omit(SolarData_Day))
 ##fit2 <- lm(Water_Energy ~ Global_Energy_Tot, data = na.omit(SolarData_Day))
@@ -46,8 +51,8 @@ g <- ggplot(na.omit(SolarData_Day), aes(x = Global_Energy_Tot, y = Water_Energy)
 g + geom_point() + geom_smooth(method = "lm") + geom_text(data = na.omit(SolarData_Day), aes(label = TIMESTAMP), check_overlap = TRUE)
 q <- ggplot(data = SolarData_Day, aes(TIMESTAMP, Global_Efficiency))
 q + geom_point()
-o <- ggplot(data = SolarData_Day, aes(Global_Energy_Tot, Global_Efficiency))
-o + geom_point() + geom_smooth()
+o <- ggplot(data = na.omit(SolarData_Day), aes(Global_Energy_Tot, Global_Efficiency, color = DirDiff))
+o + geom_point() + geom_smooth(method = "lm")
 ##r <- ggplot(data = SolarData_Day, aes(Direct_Energy_Tot, Global_Efficiency))
 ##r + geom_point()
 p <- ggplot(SolarEnergy_Day, aes(TIMESTAMP, value, fill = variable))
