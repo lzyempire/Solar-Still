@@ -1,7 +1,7 @@
 ##Get solar still water daily production data
 setwd("D:/R/Solar Still")
 library(lubridate)
-data_record <- as.Date("2020-07-03")
+data_record <- as.Date("2020-06-05")
 data_small <- as.Date("2020-09-15")
 ##data_record <- data_small
 SolarWater <- read.csv(file = "Foam Bottom Interfacial Solar Still Water Production.csv", header = FALSE, stringsAsFactors = FALSE)
@@ -23,7 +23,7 @@ SolarWater_Day$Water_Energy <- SolarWater_Day$Water_Production/1.5
 ##Get solar environment daily data
 setwd("D:/R/Solar Still")
 library(lubridate)
-SolarEnv_Day <- read.csv(file = "CR1000_BSRN1000_Day201009.csv", skip = 1, stringsAsFactors = FALSE)
+SolarEnv_Day <- read.csv(file = "CR1000_BSRN1000_Day201022.csv", skip = 1, stringsAsFactors = FALSE)
 ##SolarEnvUnit_Day <- SolarEnv_Day[1, ]
 SolarEnv_Day <- SolarEnv_Day[c(-1, -2), ] ##Delete two rows of unit
 SolarEnv_Day$TIMESTAMP <- as.Date(ymd_hms(SolarEnv_Day$TIMESTAMP))
@@ -49,7 +49,7 @@ library(ggplot2)
 ##fit3 <- lm(Water_Energy ~ poly(Global_Energy_Tot, 2), data = na.omit(SolarData_Day))
 ##fit4 <- lm(Water_Energy ~ Global_Energy_Tot + I(Global_Energy_Tot^2), data = na.omit(SolarData_Day))
 fit1 <- lm(Global_Efficiency ~ Direct_Energy_Tot + Diffuse_Energy_Tot, data = na.omit(SolarData_Day))
-fit2 <- lm(Global_Efficiency ~ Direct_Energy_Tot + Diffuse_Energy_Tot, data = na.omit(SolarData_Day[-c(1, 3, 94), ]))
+fit2 <- lm(Global_Efficiency ~ Direct_Energy_Tot + Diffuse_Energy_Tot, data = na.omit(SolarData_Day[-c(29, 31, 122), ]))
 SolarData_Day$fit_Efficiency <- coefficients(fit2)[1] + coefficients(fit2)[2]*SolarData_Day$Direct_Energy_Tot + coefficients(fit2)[3]*SolarData_Day$Diffuse_Energy_Tot
 lmfit2 <- ggplot(na.omit(melt(SolarData_Day[, c("Global_Energy_Tot", "Global_Efficiency", "fit_Efficiency")], id = "Global_Energy_Tot")), 
                  aes(Global_Energy_Tot, value*100, color = variable))
