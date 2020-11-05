@@ -19,7 +19,7 @@ SolarWater_Day$Water_Energy <- SolarWater_Day$Water_Production/1.5
 ##Get solar environment daily data
 setwd("D:/R/Solar Still")
 library(lubridate)
-SolarEnv_Day <- read.csv(file = "CR1000_BSRN1000_Day201022.csv", skip = 1, stringsAsFactors = FALSE)
+SolarEnv_Day <- read.csv(file = "CR1000_BSRN1000_Day201103.csv", skip = 1, stringsAsFactors = FALSE)
 SolarEnvUnit_Day <- SolarEnv_Day[1, ]
 SolarEnv_Day <- SolarEnv_Day[c(-1, -2), ] ##Delete two rows of unit
 SolarEnv_Day$TIMESTAMP <- as.Date(ymd_hms(SolarEnv_Day$TIMESTAMP))
