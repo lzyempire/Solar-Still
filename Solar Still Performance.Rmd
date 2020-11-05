@@ -1,0 +1,120 @@
+---
+title: "Solar Still Performance"
+author: "Luo Zhouyang"
+date: "2020/10/19"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Solar Still Types
+
+Different types of solar stills were designed and constructed by the research group, and most of the data was collected on the roof of Zheneng Chuangye Building, Hangzhou. The shape, insulation, absorption and evaporation structure of stills were improved:
+
+- **Trapezoid Solar Still**
+  + **Bottom Heating (BH):** Traditional solar still as control group
+  + **Sidewall Bottom Heating (SBH):** Traditional solar still as control group for sidewall factor investigation
+  + **Bottom Interfacial (BI):** Interfacial evaporation structure only on bottom
+  + **Sidewall Bottom Interfacial (SI):** Interfacial evaporation structure on both bottom & sidewall
+  + **Foam Bottom Interfacial (FBI):** Foam inside structure with interfacial evaporation on bottom
+  + **Foam Sidewall Bottom Interfacial (FSI):** Foam inside structure with interfacial evaporation on both bottom & sidewall
+- **Stepwised Solar Still**
+- **Pyramid Solar Still**
+- **Tube Solar Still**
+- **Portable Solar Still**
+
+![Figure. Illustration for different solar still types](./Six Solar Stills.png)
+
+### Solar Still Daily Desalination Energy Efficiency
+
+Solar stills were arranged and placed on the roof facing south direction. Distilled water was collected in a graduated cylinder to measure its volume. Distilled water was poured back into the still chamber at the sunset (17:00~18:00) or at the sunrise (8:00~9:00). Further automatic water collecting and pumping system would be introduced soon, refreshing the sea water at midnight. Solar radiation intensity and other evironmental weather data were collected by meteorological equipments located on the same roof. 
+
+```{r, warning=FALSE, echo=FALSE, message=FALSE}
+setwd("D:/R/Solar Still")
+library(lubridate)
+Still_BottomInter <- read.csv(file = "Bottom Interfacial Solar Still Daily Water Production.csv", header = TRUE, stringsAsFactors = FALSE)
+Still_SidewallInter <- read.csv(file = "Sidewall Interfacial Solar Still Daily Water Production.csv", header = TRUE, stringsAsFactors = FALSE)
+Still_FoamBottomInter <- read.csv(file = "Foam Bottom Interfacial Solar Still Daily Water Production.csv", header = TRUE, stringsAsFactors = FALSE)
+Still_BottomHeat <- read.csv(file = "Bottom Heating Solar Still Daily Water Production.csv", header = TRUE, stringsAsFactors = FALSE)
+Still_SidewallHeat <- read.csv(file = "Sidewall Bottom Heating Solar Still Daily Water Production.csv", header = TRUE, stringsAsFactors = FALSE)
+Still_FoamSidewallInter <- read.csv(file = "Foam Sidewall Interfacial Solar Still Daily Water Production.csv", header = TRUE, stringsAsFactors = FALSE)
+StillNames <- c("Bottom_Heating", "Sidewall_Bottom_Heating", "Bottom_Interfacial", "Foam_Bottom_Interfacial", "Sidewall_Interfacial", "Foam_Sidewall_Interfacial")
+
+SolarEnv_Day <- read.csv(file = "CR1000_BSRN1000_Day201022.csv", skip = 1, stringsAsFactors = FALSE)
+SolarEnv_Day <- SolarEnv_Day[c(-1, -2), ] ##Delete two rows of unit
+SolarEnv_Day$TIMESTAMP <- as.Date(ymd_hms(SolarEnv_Day$TIMESTAMP))
+SolarEnv_Day$TIMESTAMP <- SolarEnv_Day$TIMESTAMP - ddays(1)
+SolarEnv_Day$TIMESTAMP <- as.character(SolarEnv_Day$TIMESTAMP)
+SolarEnv_Day[, 2:39] <- lapply(SolarEnv_Day[, 2:39], as.numeric)
+
+library(dplyr)
+WaterProduction_Energy <- Still_BottomHeat[, c("TIMESTAMP", "Global_Energy_Tot", "Water_Energy")] %>% 
+  full_join(Still_SidewallHeat[, c("TIMESTAMP", "Water_Energy")], by = "TIMESTAMP") %>% 
+  full_join(Still_BottomInter[, c("TIMESTAMP", "Water_Energy")], by = "TIMESTAMP") %>% 
+  full_join(Still_FoamBottomInter[, c("TIMESTAMP", "Water_Energy")], by = "TIMESTAMP") %>% 
+  full_join(Still_SidewallInter[, c("TIMESTAMP", "Water_Energy")], by = "TIMESTAMP") %>%
+  full_join(Still_FoamSidewallInter[, c("TIMESTAMP", "Water_Energy")], by = "TIMESTAMP")
+names(WaterProduction_Energy) <- c("Date", "Solar_Radiation", StillNames)
+WaterProduction_Efficiency <- Still_BottomHeat[, c("TIMESTAMP", "Global_Efficiency")] %>% 
+  full_join(Still_SidewallHeat[, c("TIMESTAMP", "Global_Efficiency")], by = "TIMESTAMP") %>% 
+  full_join(Still_BottomInter[, c("TIMESTAMP", "Global_Efficiency")], by = "TIMESTAMP") %>% 
+  full_join(Still_FoamBottomInter[, c("TIMESTAMP", "Global_Efficiency")], by = "TIMESTAMP") %>% 
+  full_join(Still_SidewallInter[, c("TIMESTAMP", "Global_Efficiency")], by = "TIMESTAMP") %>% 
+  full_join(Still_FoamSidewallInter[, c("TIMESTAMP", "Global_Efficiency")], by = "TIMESTAMP") %>% 
+  left_join(SolarEnv_Day[, c("TIMESTAMP", "Global_Energy_Tot", "Direct_Energy_Tot", "Diffuse_Energy_Tot")], by = "TIMESTAMP")
+names(WaterProduction_Efficiency) <- c("Date", StillNames, "Solar_Energy", "Direct_Energy", "Diffuse_Energy")
+write.csv(WaterProduction_Efficiency, file = "Water Efficiency.csv")
+Direct_Efficiency <- WaterProduction_Efficiency[WaterProduction_Efficiency$Direct_Energy >= 1, ]
+Diffuse_Efficiency <- WaterProduction_Efficiency[WaterProduction_Efficiency$Direct_Energy < 1, ]
+fit_Efficiency <- Still_BottomHeat[, c("TIMESTAMP", "fit_Efficiency")] %>% 
+  full_join(Still_SidewallHeat[, c("TIMESTAMP", "fit_Efficiency")], by = "TIMESTAMP") %>% 
+  full_join(Still_BottomInter[, c("TIMESTAMP", "fit_Efficiency")], by = "TIMESTAMP") %>% 
+  full_join(Still_FoamBottomInter[, c("TIMESTAMP", "fit_Efficiency")], by = "TIMESTAMP") %>% 
+  full_join(Still_SidewallInter[, c("TIMESTAMP", "fit_Efficiency")], by = "TIMESTAMP") %>% 
+  full_join(Still_FoamSidewallInter[, c("TIMESTAMP", "fit_Efficiency")], by = "TIMESTAMP") %>% 
+  left_join(SolarEnv_Day[, c("TIMESTAMP", "Global_Energy_Tot", "Direct_Energy_Tot", "Diffuse_Energy_Tot")], by = "TIMESTAMP")
+names(fit_Efficiency) <- c("Date", StillNames, "Solar_Energy", "Direct_Energy", "Diffuse_Energy")
+
+library(reshape2)
+Water_Energy <- melt(WaterProduction_Energy, id = "Date")
+Water_Energy$Date <- ymd(Water_Energy$Date)
+Water_Eff <- melt(WaterProduction_Efficiency, id = "Date")
+Water_Eff$Date <- ymd(Water_Eff$Date)
+Solar_Eff <- melt(WaterProduction_Efficiency[, c("Solar_Energy", StillNames)], id = "Solar_Energy")
+Direct_Eff <- melt(Direct_Efficiency[, c("Direct_Energy", StillNames)], id = "Direct_Energy")
+Diffuse_Eff <- melt(Diffuse_Efficiency[, c("Diffuse_Energy", StillNames)], id = "Diffuse_Energy")
+Total_eff <- melt(WaterProduction_Efficiency[, c("Solar_Energy", "Direct_Energy", "Diffuse_Energy", StillNames)], id = c("Solar_Energy", "Direct_Energy", "Diffuse_Energy"))
+names(Total_eff) <- c("Solar_Energy", "Direct_Energy", "Diffuse_Energy", "Still_Type", "Efficiency")
+fit_Eff <- melt(fit_Efficiency[, c("Solar_Energy", StillNames)], id = "Solar_Energy")
+
+library(plotly)
+StillEnergy_plotly <- plot_ly(WaterProduction_Energy, x = ~Date, y = ~Solar_Radiation, type = 'bar', name = 'Solar Radiation') %>%
+  add_trace(y = ~Bottom_Heating, name = 'Bottom Heating') %>%
+  add_trace(y = ~Sidewall_Bottom_Heating, name = 'Sidewall Bottom Heating') %>%
+  add_trace(y = ~Bottom_Interfacial, name = 'Bottom Interfacial') %>%
+  add_trace(y = ~Foam_Bottom_Interfacial, name = 'Foam Bottom Interfacial') %>%
+  add_trace(y = ~Sidewall_Interfacial, name = 'Sidewall Interfacial') %>%
+  add_trace(y = ~Foam_Sidewall_Interfacial, name = 'Foam Sidewall Interfacial') %>%
+  layout(yaxis = list(title = 'Energy/kWh'), xaxis = list(title = 'Date'), barmode = 'group')
+StillEnergy_plotly
+
+```
+
+
+### Solar Desalination Project in Zhejiang Energy R&D Institute
+
+*The Solar Desalination Research Project* is funded by *Zhejiang Energy Group*, coorperated with *Zhejiang Energy Yueqing Power Station* and *Shanghai Jiaotong University*. The project focused on development of high performance solar desalination devices on three linked research area:
+
+- **Photo-thermal Materials:** including plasmonic nanoparticles, metal oxide and hydrogels
+- **Device Structures:** including optical, insulation, condensation process improvements
+- **System:** including model simulation, data analysis, automatic control system engineering
+
+The solar desalination devices were developed into three product series targeting on different market demands:
+
+- **High Performance Device:** Efficient and compact device providing sufficient daily water supply(150 kg/(person*day)) on ships or offshore platform
+- **Economic Scalable Device:** Distributed desalination system integrated with low cost device units providing daily water supply on islands or coastal area
+- **Portable Device:** Light and fast assembly device providing sufficient daily drinking water supply(3 kg/(person*day)) as wilderness survival equipment

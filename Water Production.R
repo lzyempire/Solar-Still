@@ -5,9 +5,10 @@ Still_SidewallInter <- read.csv(file = "Sidewall Interfacial Solar Still Daily W
 Still_FoamBottomInter <- read.csv(file = "Foam Bottom Interfacial Solar Still Daily Water Production.csv", header = TRUE, stringsAsFactors = FALSE)
 Still_BottomHeat <- read.csv(file = "Bottom Heating Solar Still Daily Water Production.csv", header = TRUE, stringsAsFactors = FALSE)
 Still_SidewallHeat <- read.csv(file = "Sidewall Bottom Heating Solar Still Daily Water Production.csv", header = TRUE, stringsAsFactors = FALSE)
-StillNames <- c("Bottom_Heating", "Sidewall_Bottom_Heating", "Bottom_Interfacial", "Foam_Bottom_Interfacial", "Sidewall_Interfacial")
+Still_FoamSidewallInter <- read.csv(file = "Foam Sidewall Interfacial Solar Still Daily Water Production.csv", header = TRUE, stringsAsFactors = FALSE)
+StillNames <- c("Bottom_Heating", "Sidewall_Bottom_Heating", "Bottom_Interfacial", "Foam_Bottom_Interfacial", "Sidewall_Interfacial", "Foam_Sidewall_Interfacial")
 
-SolarEnv_Day <- read.csv(file = "CR1000_BSRN1000_Day201009.csv", skip = 1, stringsAsFactors = FALSE)
+SolarEnv_Day <- read.csv(file = "CR1000_BSRN1000_Day201022.csv", skip = 1, stringsAsFactors = FALSE)
 SolarEnv_Day <- SolarEnv_Day[c(-1, -2), ] ##Delete two rows of unit
 SolarEnv_Day$TIMESTAMP <- as.Date(ymd_hms(SolarEnv_Day$TIMESTAMP))
 SolarEnv_Day$TIMESTAMP <- SolarEnv_Day$TIMESTAMP - ddays(1)
@@ -19,13 +20,15 @@ WaterProduction_Energy <- Still_BottomHeat[, c("TIMESTAMP", "Global_Energy_Tot",
   full_join(Still_SidewallHeat[, c("TIMESTAMP", "Water_Energy")], by = "TIMESTAMP") %>% 
   full_join(Still_BottomInter[, c("TIMESTAMP", "Water_Energy")], by = "TIMESTAMP") %>% 
   full_join(Still_FoamBottomInter[, c("TIMESTAMP", "Water_Energy")], by = "TIMESTAMP") %>% 
-  full_join(Still_SidewallInter[, c("TIMESTAMP", "Water_Energy")], by = "TIMESTAMP")
-names(WaterProduction_Energy) <- c("Date", StillNames)
+  full_join(Still_SidewallInter[, c("TIMESTAMP", "Water_Energy")], by = "TIMESTAMP") %>%
+  full_join(Still_FoamSidewallInter[, c("TIMESTAMP", "Water_Energy")], by = "TIMESTAMP")
+names(WaterProduction_Energy) <- c("Date", "Solar_Radiation", StillNames)
 WaterProduction_Efficiency <- Still_BottomHeat[, c("TIMESTAMP", "Global_Efficiency")] %>% 
   full_join(Still_SidewallHeat[, c("TIMESTAMP", "Global_Efficiency")], by = "TIMESTAMP") %>% 
   full_join(Still_BottomInter[, c("TIMESTAMP", "Global_Efficiency")], by = "TIMESTAMP") %>% 
   full_join(Still_FoamBottomInter[, c("TIMESTAMP", "Global_Efficiency")], by = "TIMESTAMP") %>% 
   full_join(Still_SidewallInter[, c("TIMESTAMP", "Global_Efficiency")], by = "TIMESTAMP") %>% 
+  full_join(Still_FoamSidewallInter[, c("TIMESTAMP", "Global_Efficiency")], by = "TIMESTAMP") %>% 
   left_join(SolarEnv_Day[, c("TIMESTAMP", "Global_Energy_Tot", "Direct_Energy_Tot", "Diffuse_Energy_Tot")], by = "TIMESTAMP")
 names(WaterProduction_Efficiency) <- c("Date", StillNames, "Solar_Energy", "Direct_Energy", "Diffuse_Energy")
 write.csv(WaterProduction_Efficiency, file = "Water Efficiency.csv")
@@ -36,6 +39,7 @@ fit_Efficiency <- Still_BottomHeat[, c("TIMESTAMP", "fit_Efficiency")] %>%
   full_join(Still_BottomInter[, c("TIMESTAMP", "fit_Efficiency")], by = "TIMESTAMP") %>% 
   full_join(Still_FoamBottomInter[, c("TIMESTAMP", "fit_Efficiency")], by = "TIMESTAMP") %>% 
   full_join(Still_SidewallInter[, c("TIMESTAMP", "fit_Efficiency")], by = "TIMESTAMP") %>% 
+  full_join(Still_FoamSidewallInter[, c("TIMESTAMP", "fit_Efficiency")], by = "TIMESTAMP") %>% 
   left_join(SolarEnv_Day[, c("TIMESTAMP", "Global_Energy_Tot", "Direct_Energy_Tot", "Diffuse_Energy_Tot")], by = "TIMESTAMP")
 names(fit_Efficiency) <- c("Date", StillNames, "Solar_Energy", "Direct_Energy", "Diffuse_Energy")
 
@@ -52,8 +56,8 @@ names(Total_eff) <- c("Solar_Energy", "Direct_Energy", "Diffuse_Energy", "Still_
 fit_Eff <- melt(fit_Efficiency[, c("Solar_Energy", StillNames)], id = "Solar_Energy")
 
 library(ggplot2)
-##g <- ggplot(Water_Energy, aes(Date, value, fill = variable))
-##g + geom_bar(stat = 'identity', position='dodge') + labs(x = "Date", y = "Energy/kWh") 
+StillEnergy <- ggplot(Water_Energy, aes(Date, value, fill = variable))
+StillEnergy + geom_bar(stat = 'identity', position='dodge') + labs(x = "Date", y = "Energy/kWh") 
 SolarEff <- ggplot(Solar_Eff, aes(Solar_Energy, value*100, color = variable))
 SolarEff + geom_point() + labs(x = "Solar Energy/kWh", y = "Efficiency/%") + geom_smooth(method="loess",se=FALSE)
 fitEff <- ggplot(fit_Eff, aes(Solar_Energy, value*100, color = variable))
@@ -72,5 +76,39 @@ DiffuseEff + geom_point() + labs(x = "Diffuse Energy/kWh", y = "Efficiency/%") +
 
 
 library(plotly)
-fig <- plot_ly(Total_eff, x = ~Direct_Energy, y = ~Diffuse_Energy, z = ~Efficiency*100, color = ~Still_Type)
-fig
+StillEnergy_plotly <- plot_ly(WaterProduction_Energy, x = ~Date, y = ~Solar_Radiation, type = 'bar', name = 'Solar Radiation') %>%
+  add_trace(y = ~Bottom_Heating, name = 'Bottom Heating') %>%
+  add_trace(y = ~Sidewall_Bottom_Heating, name = 'Sidewall Bottom Heating') %>%
+  add_trace(y = ~Bottom_Interfacial, name = 'Bottom Interfacial') %>%
+  add_trace(y = ~Foam_Bottom_Interfacial, name = 'Foam Bottom Interfacial') %>%
+  add_trace(y = ~Sidewall_Interfacial, name = 'Sidewall Interfacial') %>%
+  add_trace(y = ~Foam_Sidewall_Interfacial, name = 'Foam Sidewall Interfacial') %>%
+  layout(yaxis = list(title = 'Energy/kWh'), xaxis = list(title = 'Date'), barmode = 'group')
+StillEnergy_plotly
+
+SolarEff_plotly <- plot_ly(Solar_Eff, x = ~Solar_Energy, y = ~value, color = ~variable, trendline="lowess")
+SolarEff_plotly
+
+DirDiffEff_plotly <- plot_ly(Total_eff, x = ~Direct_Energy, y = ~Diffuse_Energy, z = ~Efficiency*100, color = ~Still_Type, type = 'scatter3d')
+DirDiffEff_plotly
+
+
+library(shiny)
+library(ggplot2)
+shinyApp(
+
+  ui = fluidPage(
+    sliderInput("region", "Region:",
+                choices = colnames(WorldPhones)),
+    plotOutput("StillEnergy_Shiny")
+  ),
+
+  server = function(input, output) {
+    output$StillEnergy_Shiny = renderPlot({
+      StillEnergy <- ggplot(Water_Energy[(Water_Energy$Date >= minDate)&&(Water_Energy$Date <= maxDate)], aes(Date, value, fill = variable))
+      StillEnergy + geom_bar(stat = 'identity', position='dodge') + labs(x = "Date", y = "Energy/kWh") 
+    })
+  },
+
+  options = list(height = 500)
+)
