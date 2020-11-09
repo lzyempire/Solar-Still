@@ -2,9 +2,8 @@
 title: "Solar Still Performance"
 author: "Luo Zhouyang"
 date: "2020/10/19"
-output:
-  html_document: default
-  pdf_document: default
+output: html_document
+runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
@@ -91,17 +90,24 @@ Total_eff <- melt(WaterProduction_Efficiency[, c("Solar_Energy", "Direct_Energy"
 names(Total_eff) <- c("Solar_Energy", "Direct_Energy", "Diffuse_Energy", "Still_Type", "Efficiency")
 fit_Eff <- melt(fit_Efficiency[, c("Solar_Energy", StillNames)], id = "Solar_Energy")
 
-library(plotly)
-StillEnergy_plotly <- plot_ly(WaterProduction_Energy, x = ~Date, y = ~Solar_Radiation, type = 'bar', name = 'Solar Radiation') %>%
-  add_trace(y = ~Bottom_Heating, name = 'Bottom Heating') %>%
-  add_trace(y = ~Sidewall_Bottom_Heating, name = 'Sidewall Bottom Heating') %>%
-  add_trace(y = ~Bottom_Interfacial, name = 'Bottom Interfacial') %>%
-  add_trace(y = ~Foam_Bottom_Interfacial, name = 'Foam Bottom Interfacial') %>%
-  add_trace(y = ~Sidewall_Interfacial, name = 'Sidewall Interfacial') %>%
-  add_trace(y = ~Foam_Sidewall_Interfacial, name = 'Foam Sidewall Interfacial') %>%
-  layout(yaxis = list(title = 'Energy/kWh'), xaxis = list(title = 'Date'), barmode = 'group')
-StillEnergy_plotly
+library(ggplot2)
+shinyApp(
+  ui = fluidPage(
+    titlePanel("Solar Still Daily Desalination Energy Efficiency"),
+    sliderInput("slider_Date", label = h3("Date Range Slider"), min = min(Water_Energy$Date, na.rm = TRUE), 
+                max = max(Water_Energy$Date, na.rm = TRUE), value = c(as.Date('2020-08-01'), as.Date('2020-09-01')), width='100%'),
+    plotOutput("StillEnergy_Shiny")
+  ),
 
+  server = function(input, output) {
+    output$StillEnergy_Shiny = renderPlot({
+      StillEnergy <- ggplot(na.omit(Water_Energy[(Water_Energy$Date >= input$slider_Date[1])&(Water_Energy$Date <= input$slider_Date[2]), ]), aes(Date, value, fill = variable))
+##StillEnergy <- ggplot(Water_Energy, aes(Date, value, fill = variable))
+      StillEnergy + geom_bar(stat = 'identity', position='dodge') + labs(x = "Date", y = "Energy/kWh")
+    })
+  },
+  options = list(height = 600)
+)
 ```
 
 
