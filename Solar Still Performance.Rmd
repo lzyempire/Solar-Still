@@ -3,7 +3,6 @@ title: "Solar Still Performance"
 author: "Luo Zhouyang"
 date: "2020/10/19"
 output: html_document
-runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
@@ -26,13 +25,15 @@ Different types of solar stills were designed and constructed by the research gr
 - **Tube Solar Still**
 - **Portable Solar Still**
 
-![Figure. Illustration for different solar still types](./Six Solar Stills.png)
+<div align=center>![**Figure. Illustration for different solar still types**](./Six Solar Stills.png)
 
 ### Solar Still Daily Desalination Energy Efficiency
 
 Solar stills were arranged and placed on the roof facing south direction. Distilled water was collected in a graduated cylinder to measure its volume. Distilled water was poured back into the still chamber at the sunset (17:00~18:00) or at the sunrise (8:00~9:00). Further automatic water collecting and pumping system would be introduced soon, refreshing the sea water at midnight. Solar radiation intensity and other evironmental weather data were collected by meteorological equipments located on the same roof. 
 
-```{r, warning=FALSE, echo=FALSE, message=FALSE}
+**Solar stills daily water production energy vs solar radiation energy plot** was showed below (daily water production was converted into its evaporation energy by multiplying water evaporation enthalpy):  
+**Hint:** it's an interactive graph! You can slide the bottom Date range and mute/show the still by click its label
+```{r, out.width="100%", warning=FALSE, echo=FALSE, message=FALSE}
 setwd("D:/R/Solar Still")
 library(lubridate)
 Still_BottomInter <- read.csv(file = "Bottom Interfacial Solar Still Daily Water Production.csv", header = TRUE, stringsAsFactors = FALSE)
@@ -90,26 +91,48 @@ Total_eff <- melt(WaterProduction_Efficiency[, c("Solar_Energy", "Direct_Energy"
 names(Total_eff) <- c("Solar_Energy", "Direct_Energy", "Diffuse_Energy", "Still_Type", "Efficiency")
 fit_Eff <- melt(fit_Efficiency[, c("Solar_Energy", StillNames)], id = "Solar_Energy")
 
-library(ggplot2)
-shinyApp(
-  ui = fluidPage(
-    titlePanel("Solar Still Daily Desalination Energy Efficiency"),
-    sliderInput("slider_Date", label = h3("Date Range Slider"), min = min(Water_Energy$Date, na.rm = TRUE), 
-                max = max(Water_Energy$Date, na.rm = TRUE), value = c(as.Date('2020-08-01'), as.Date('2020-09-01')), width='100%'),
-    plotOutput("StillEnergy_Shiny")
-  ),
-
-  server = function(input, output) {
-    output$StillEnergy_Shiny = renderPlot({
-      StillEnergy <- ggplot(na.omit(Water_Energy[(Water_Energy$Date >= input$slider_Date[1])&(Water_Energy$Date <= input$slider_Date[2]), ]), aes(Date, value, fill = variable))
-##StillEnergy <- ggplot(Water_Energy, aes(Date, value, fill = variable))
-      StillEnergy + geom_bar(stat = 'identity', position='dodge') + labs(x = "Date", y = "Energy/kWh")
-    })
-  },
-  options = list(height = 600)
-)
+library(plotly)
+StillEnergy_plotly <- plot_ly(WaterProduction_Energy, x = ~Date, y = ~Solar_Radiation, type = 'bar', name = 'Solar Radiation') %>%
+  add_trace(y = ~Bottom_Heating, name = 'Bottom Heating') %>%
+  add_trace(y = ~Sidewall_Bottom_Heating, name = 'Sidewall Bottom Heating') %>%
+  add_trace(y = ~Bottom_Interfacial, name = 'Bottom Interfacial') %>%
+  add_trace(y = ~Foam_Bottom_Interfacial, name = 'Foam Bottom Interfacial') %>%
+  add_trace(y = ~Sidewall_Interfacial, name = 'Sidewall Interfacial') %>%
+  add_trace(y = ~Foam_Sidewall_Interfacial, name = 'Foam Sidewall Interfacial') %>%
+  layout(
+    yaxis = list(title = 'Energy/kWh'), 
+    xaxis = list(
+      rangeselector = list(
+        buttons = list(
+          list(
+            count = 3,
+            label = "3 mo",
+            step = "month",
+            stepmode = "backward"),
+          list(
+            count = 6,
+            label = "6 mo",
+            step = "month",
+            stepmode = "backward"),
+          list(
+            count = 1,
+            label = "1 yr",
+            step = "year",
+            stepmode = "backward"),
+          list(
+            count = 1,
+            label = "YTD",
+            step = "year",
+            stepmode = "todate"),
+          list(step = "all"))),
+      rangeslider = list(type = "date")),
+    barmode = 'group')
+StillEnergy_plotly
 ```
 
+**Results:**Sunny day's solar radiation energy reached high (7~8 kWh) in July and August, and so did the solar still water production energy. It rained a lot in June and September, thus small amount of water was collected.
+
+Since the solar radiation is different for each day.  
 
 ### Solar Desalination Project in Zhejiang Energy R&D Institute
 

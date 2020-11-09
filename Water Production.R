@@ -83,7 +83,35 @@ StillEnergy_plotly <- plot_ly(WaterProduction_Energy, x = ~Date, y = ~Solar_Radi
   add_trace(y = ~Foam_Bottom_Interfacial, name = 'Foam Bottom Interfacial') %>%
   add_trace(y = ~Sidewall_Interfacial, name = 'Sidewall Interfacial') %>%
   add_trace(y = ~Foam_Sidewall_Interfacial, name = 'Foam Sidewall Interfacial') %>%
-  layout(yaxis = list(title = 'Energy/kWh'), xaxis = list(title = 'Date'), barmode = 'group')
+  layout(
+    title = "Solar Stills Daily Water Production Energy vs Solar Radiation Energy",
+    yaxis = list(title = 'Energy/kWh'), 
+    xaxis = list(
+      rangeselector = list(
+        buttons = list(
+          list(
+            count = 3,
+            label = "3 mo",
+            step = "month",
+            stepmode = "backward"),
+          list(
+            count = 6,
+            label = "6 mo",
+            step = "month",
+            stepmode = "backward"),
+          list(
+            count = 1,
+            label = "1 yr",
+            step = "year",
+            stepmode = "backward"),
+          list(
+            count = 1,
+            label = "YTD",
+            step = "year",
+            stepmode = "todate"),
+          list(step = "all"))),
+      rangeslider = list(type = "date")),
+    barmode = 'group')
 StillEnergy_plotly
 
 SolarEff_plotly <- plot_ly(Solar_Eff, x = ~Solar_Energy, y = ~value, color = ~variable, trendline="lowess")
@@ -92,23 +120,22 @@ SolarEff_plotly
 DirDiffEff_plotly <- plot_ly(Total_eff, x = ~Direct_Energy, y = ~Diffuse_Energy, z = ~Efficiency*100, color = ~Still_Type, type = 'scatter3d')
 DirDiffEff_plotly
 
-
 library(shiny)
 library(ggplot2)
 shinyApp(
-
   ui = fluidPage(
-    sliderInput("region", "Region:",
-                choices = colnames(WorldPhones)),
+    titlePanel("Solar Still Daily Desalination Energy Efficiency"),
+    sliderInput("slider_Date", label = h3("Date Range Slider"), min = min(Water_Energy$Date, na.rm = TRUE), 
+                max = max(Water_Energy$Date, na.rm = TRUE), value = c(as.Date('2020-08-01'), as.Date('2020-09-01')), width='100%'),
     plotOutput("StillEnergy_Shiny")
   ),
-
+  
   server = function(input, output) {
     output$StillEnergy_Shiny = renderPlot({
-      StillEnergy <- ggplot(Water_Energy[(Water_Energy$Date >= minDate)&&(Water_Energy$Date <= maxDate)], aes(Date, value, fill = variable))
-      StillEnergy + geom_bar(stat = 'identity', position='dodge') + labs(x = "Date", y = "Energy/kWh") 
+      StillEnergy <- ggplot(na.omit(Water_Energy[(Water_Energy$Date >= input$slider_Date[1])&(Water_Energy$Date <= input$slider_Date[2]), ]), aes(Date, value, fill = variable))
+      ##StillEnergy <- ggplot(Water_Energy, aes(Date, value, fill = variable))
+      StillEnergy + geom_bar(stat = 'identity', position='dodge') + labs(x = "Date", y = "Energy/kWh")
     })
   },
-
-  options = list(height = 500)
+  options = list(height = 600)
 )
