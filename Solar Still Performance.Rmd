@@ -31,8 +31,8 @@ Different types of solar stills were designed and constructed by the research gr
 
 Solar stills were arranged and placed on the roof facing south direction. Distilled water was collected in a graduated cylinder to measure its volume. Distilled water was poured back into the still chamber at the sunset (17:00~18:00) or at the sunrise (8:00~9:00). Further automatic water collecting and pumping system would be introduced soon, refreshing the sea water at midnight. Solar radiation intensity and other evironmental weather data were collected by meteorological equipments located on the same roof. 
 
-**Solar stills daily water production energy vs solar radiation energy plot** was showed below (daily water production was converted into its evaporation energy by multiplying water evaporation enthalpy):  
-**Hint:** it's an interactive graph! You can slide the bottom Date range and mute/show the still by click its label
+**The plot of daily solar still water production energy and solar radiation energy** was shown below (daily water production was converted into its evaporation energy by multiplying water evaporation enthalpy):  
+**Hint:** It's an interactive graph! You can slide the bottom Date range and mute/show the still data by click its label
 ```{r, out.width="100%", warning=FALSE, echo=FALSE, message=FALSE}
 setwd("D:/R/Solar Still")
 library(lubridate)
@@ -130,9 +130,19 @@ StillEnergy_plotly <- plot_ly(WaterProduction_Energy, x = ~Date, y = ~Solar_Radi
 StillEnergy_plotly
 ```
 
-**Results:**Sunny day's solar radiation energy reached high (7~8 kWh) in July and August, and so did the solar still water production energy. It rained a lot in June and September, thus small amount of water was collected.
+**Results:**   
+Sunny day's solar radiation energy reached high (7~8 kWh) in July and August, and so did the solar still water production energy. It rained a lot in June and September, thus small amount of water was collected then.
 
-Since the solar radiation is different for each day.  
+Since the weather and solar radiation were different every day, solar stills' energy efficiencies displayed randomly by date. Thus we could differ the energy efficiency of different solar stills by daily solar radiation energy, despited of the climate and weather change. 
+
+**The plot of solar still daily water production energy efficiency vs solar radiation energy** was shown below (the loess smoothing was conducted to each solar still respectively):  
+**Hint:** It's an interactive graph! You can mute/show the still data and its smoothing line by its label.
+
+**Results:** 
+
+1. The solar still's energy efficiency increased while the daily solar radiation energy increased.
+2. The increase rate of energy efficiency was limited after daily solar radiation reached high. (It's partially because of salt aggregation on the evaporation interfacial)
+3. 
 
 ### Solar Desalination Project in Zhejiang Energy R&D Institute
 
