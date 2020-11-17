@@ -10,7 +10,6 @@ for(i in 2:(length(SolarWater)/2)){
 }
 SolarWater_Day <- as.data.frame(SolarWater_Day, stringsAsFactors = FALSE)
 names(SolarWater_Day) <- c("Date", "Water_Production")
-row.names(SolarWater_Day) <- SolarWater_Day[, 1]
 SolarWater_Day$Date <- ymd(SolarWater_Day$Date)
 SolarWater_Day <- SolarWater_Day[SolarWater_Day$Date >= data_record, ]
 SolarWater_Day$Water_Production <- as.numeric(SolarWater_Day$Water_Production)*4/1000
@@ -19,7 +18,7 @@ SolarWater_Day$Water_Energy <- SolarWater_Day$Water_Production/1.5
 ##Get solar environment daily data
 setwd("D:/R/Solar Still")
 library(lubridate)
-SolarEnv_Day <- read.csv(file = "CR1000_BSRN1000_Day201103.csv", skip = 1, stringsAsFactors = FALSE)
+SolarEnv_Day <- read.csv(file = "CR1000_BSRN1000_Day201116.csv", skip = 1, stringsAsFactors = FALSE)
 SolarEnvUnit_Day <- SolarEnv_Day[1, ]
 SolarEnv_Day <- SolarEnv_Day[c(-1, -2), ] ##Delete two rows of unit
 SolarEnv_Day$TIMESTAMP <- as.Date(ymd_hms(SolarEnv_Day$TIMESTAMP))
@@ -53,15 +52,15 @@ lmfit2 + geom_point()
 
 write.csv(SolarData_Day, file = "Bottom Heating Solar Still Daily Water Production.csv")
 
-
-
 g <- ggplot(na.omit(SolarData_Day), aes(x = Global_Energy_Tot, y = Water_Energy))
-g + geom_point() + geom_smooth(method = "lm") + geom_text(data = na.omit(SolarData_Day), aes(label = TIMESTAMP), check_overlap = TRUE)
+g + geom_point() + geom_smooth(method = "lm") + geom_text(data = na.omit(SolarData_Day), aes(label = TIMESTAMP, size = 1), check_overlap = TRUE)
 q <- ggplot(data = SolarData_Day, aes(TIMESTAMP, Global_Efficiency))
 q + geom_point()
 o <- ggplot(data = na.omit(SolarData_Day), aes(Global_Energy_Tot, Global_Efficiency, color = DirDiff))
 o + geom_point() + geom_smooth(method = "lm")
-##r <- ggplot(data = SolarData_Day, aes(Direct_Energy_Tot, Global_Efficiency))
-##r + geom_point()
+
+r <- ggplot(data = SolarData_Day, aes(Direct_Energy_Tot, Global_Efficiency))
+r + geom_point()
 p <- ggplot(SolarEnergy_Day, aes(TIMESTAMP, value, fill = variable))
 p + geom_bar(stat = 'identity', position='dodge') + labs(x = "Date", y = "Energy/kWh") 
+geom_text(data = SolarData_Day, aes(label = Global_Efficiency, position = position_dodge(width = 1), size = 3))
