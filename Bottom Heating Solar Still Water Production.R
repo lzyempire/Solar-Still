@@ -36,7 +36,7 @@ SolarData_Day$Global_Efficiency <- SolarData_Day$Water_Energy/SolarData_Day$Glob
 ##SolarData_Day$Direct_Efficiency <- SolarData_Day$Water_Energy/SolarData_Day$Direct_Energy_Tot
 
 SolarData_Day$DirDiffRatio <- SolarData_Day$Direct_Energy_Tot/SolarData_Day$Diffuse_Energy_Tot
-SolarData_Day$DirDiff <- cut(SolarData_Day$DirDiffRatio, breaks = c(min(na.omit(SolarData_Day$DirDiffRatio)), 0.1, 1, max(na.omit(SolarData_Day$DirDiffRatio))), labels = c("Cloudy", "Between", "Clear"))
+SolarData_Day$DirDiff <- cut(SolarData_Day$DirDiffRatio, breaks = c(min(na.omit(SolarData_Day$DirDiffRatio)), 0.1, 1, max(na.omit(SolarData_Day$DirDiffRatio))), labels = c("Overcast (Dir./Diff. < 0.1)", "Cloudy (0.1 < Dir./Diff. < 1)", "Sunny (Dir./Diff. > 1)"))
 
 library(ggplot2)
 ##fit1 <- lm(Water_Energy ~ Global_Energy_Tot + Direct_Energy_Tot, data = na.omit(SolarData_Day))
