@@ -157,7 +157,7 @@ ggplotly(SolarEff, height = 600)
 **Results:** 
 
 1. The solar still's energy efficiency increased while the daily solar radiation energy increased.
-2. The increase rate of energy efficiency was limited after daily solar radiation reached high. (It's because of salt aggregation occured on the evaporation interface of interfacial evaporation solar stills. )
+2. The increase rate of energy efficiency was limited after daily solar radiation reached high. 
 3. Comparing Bottom Heating solar stills with Interfacial Evaporation ones, there's no significant difference on desalination performance between these two evaporation structures.
 4. The foam lining FBI and FSI solar stills' energy efficiencies were leading in almost all solar radiation condition.
 5. Sidewall black wick modified solar stills performed better than not modified ones on both bottom heating and interfacial evaporation structures. However, there's no obvious inprovement on foam lining solar still pairs.
@@ -435,29 +435,36 @@ The results shown above were able to be summarized into two aspects below. One i
 
 It was meaningful to track solar stills' performances continuously in days, months and seasons. Solar radiation intensities, components, angles and energies changed a lot by the time, which was observed to severely affect solar stills' energy efficiency. Some preliminary results were:
 
-1. The solar still's energy efficiency was positive correlated to solar transient power and total daily energy.
-2. The direct radiation component in sunlight brought more energy efficiency for solar stills than the diffuse radiation.
+1. The solar still's energy efficiency was positive correlated to solar transient power and total daily energy. The maximum transient energy efficiency of solar still could reach to 60% at a solar power of 950 W, while the daily average energy efficiency was over 50% at a solar energy of 7 kWh.
+2. The water production percentages of interfacial evaporation solar stills over the day was averagely one hour ahead of those of bottom heating solar stills.
+3. The direct radiation component in sunlight brought more energy efficiency for solar stills than the diffuse radiation.
 
-There were still some assumptions need to discuss on some observed results, and the improvements were proposed to further confirm the assumption.
+There were still some assumptions need to discuss based on some observed results, and the improvements were proposed to further confirm the assumptions.
 
 1. **The relationship of transient/daily solar stills' energy efficiency and solar radiation intensity/energy is nearly linear or not? Is there a limit after solar radiation reached high?**  
-Since the solar stills were repaired or improved for several times, and the climate factors were also changed during the long-term experiments, thus the data scattered widely the Further theoretical model was needed to simmulate the factor of solar radiation.  
-The limits in some cases were mostly because of salt aggregation occured on the evaporation interface of interfacial evaporation solar stills. In trasient energy efficiency plot (Figure 8), the energy efficiencies rised without any signs of attenuation. To further confirm this result, the salt storage layer would be introduced to the interfaical evaporation structure for salt rejection. However this method might decrease the energy efficiency  If the limit was not existed in a centain solar energy range, the solar concentration improvement by mirrors would be a promising method to further increase the total energy efficiency.
-2. **Comparing Bottom Heating solar stills with Interfacial Evaporation ones, there's no significant difference on desalination performance between these two evaporation structures.**  
-This result was probably because that the bottom heating water layer was ~ 3 cm thick and the water recycle condition was "fresh water poured back".
-
-
+Since the solar stills were repaired or improved for several times, and the climate factors were also changed during the long-term experiments, thus the data scattered widely and hardly to show a precisely statistic relationship between energy efficiency and solar radiation. In hourly data sets, the low solar power data was collected from twilight on the morning and afternoon, and also from cloudy days, thus introduced some other factors into the data such as daytime, weather, which makes the efficiency data scatter even wider too. As an improvement, a strict control experiment with automatic minutely data collection would be conducted for better data quality. The theoretical model was also needed to simmulate the multiple factors of solar radiation and the weather condition that affected the solar still energy efficiency. The meachine learning method was planned to use to improve the accuracy of the model. We can then use the model to fit the solar stills' energy efficiencies on different environmental conditions in different industrial application locations, and choose the suitable solar stills with high efficiency.  
+The limits shown in most cases were because of salt aggregation occured on the evaporation interface of interfacial evaporation solar stills. In trasient energy efficiency plot (Figure 8), the energy efficiencies rised without any signs of attenuation. To further confirm this result, the salt storage layer would be introduced to the interfaical evaporation structure for salt rejection. However this method might increase the heat loss and decrease the energy efficiency in low solar energy input condition, which would get a steeper slope on energy efficiency increase. If the limit was not existed in a centain solar energy range, the solar concentration improvement by mirrors would be a promising method to further increase the total energy efficiency.
+2. **Comparing Bottom Heating solar stills with Interfacial Evaporation ones, there seemed to be no significant difference on desalination performance between these two evaporation structures?**  
+This result was probably because that the bottom heating water layer was ~ 3 cm thick and the water recycle condition was "fresh water poured back". The thin water layer stored a small amount of solar energy which delayed the water production process for one hour. It lost nearly equivalent amount of energy compared to interfacial evaporation process, because the heated and condensed salt water was not drained out. As an improvement, automatically saline water pumping and salt water draining system would be introduced into the solar still system on experiments and also on industrial application, which would suppose to get different comparison results of these two evaporation systems. The theoretical model was also needed to calculate the energy balance of the system and confirm the assumption.
+3. **Why did the direct and diffuse radiation component in sunlight affect differently on solar still energy efficiency?**  
+According to the data collecting experience, when sunlight directly radiated to the solar stills, the water production jumped high. But this experience was probably because when direct radiation occurs, total radiation intensity was always high. To confirm this assumption, direct and diffuse solar radiation measurement and instrument, daily and transient statistical data analysis and photo-thermal transformation mechanism in solar stills were needed to further investigation. The understanding of this assumption is important for improve solar still energy efficiency in cloudy days and would help the solar concentration design.
 
 #### Sidewall modification strategy was crucial to the interfacial evaporation solar still structure
 
-In traditional bottom heating solar stills, sidewall was made of steels and painted black to absorb the sunlight and transport the heat to the water layer. But on the opposite, in interfacial evaporation solar still system, according to our design and tests, sidewall needed to be thermal insulated. Although  
+In traditional bottom heating solar stills, sidewall was made of steels and painted black to absorb the sunlight and transport the heat to the water layer. On the contrary, in interfacial evaporation solar still system, according to our design and experiment tests, sidewall needed to be a thermal insulator to avoid heat transporation from sidewall to the saline water. Sidewall structure modified with thermal insulation and/or black wick was effectively improve the solar still energy efficiency. Here were some preliminary results:
 
+1. The sidewall foam lining FBI and FSI solar stills' transient and daily average energy efficiencies were all leading in almost all solar radiation condition.
+2. Sidewall black wick modified solar stills performed better than not modified ones on both bottom heating and interfacial evaporation structures. However, there's no obvious improvement on foam lining solar still pairs.
+3. Sidewall black wick modified solar still had expanded transient efficiency and percentage curve over the day, which means it produced more water in twilight condition. 
+4. The efficiency peaks of sidewall black wick modified solar stills appeared nearly one hour later than nonmodified ones, which indicates a energy storage on wicks.
 
-There were still something need to discuss on the observed results.
+There were still some assumptions need to discuss based on some observed results, and the improvements were proposed to further confirm the assumptions.
 
-1. Using foam as thermal insulated lining rather than coating for solar still evaporation chamber, could reduce the thermal losses from evaporation layer to water through frameworks. Thus the FBI and FSI solar stills' energy efficiencies were leading in almost all solar radiation condition.
-2. Sidewall modified solar stills could absorb more sunlights and 
-
+1. **Why did sidewall black wick modification improve little on energy efficiency for foam lining solar stills**  
+Using foam as thermal insulated lining rather than coating for solar still evaporation chamber, could reduce the thermal losses from evaporation layer to water through frameworks. Thus the FBI and FSI solar stills' energy efficiencies were leading in almost all solar radiation condition. According to heat balance analysis, sidewall black wick modification was actually adding a new wick around the evaporation interface, which had an unnegligible cross-sectional area that would surely increase the heat loss. So compared the sidewall black wick modified FSI solar still to the FBI solar still, the sunlight on sidewall was collected and some of it was used for evaporation, but some leaked to the water through the wick. The solar energy collected by black wick on upper part of sidewall where water could not reach through wick, was unable to be used for evaporation and mostly lost.  
+Thus stepwised solar still design with sidewall modification which lowered the sidewall height for each steps in the still, would be a promising solution for higher energy efficiency. Solar still sidewall modified with mirror rather than black wick inside the foam lining, which mentioned previously, was also a alternative way to improve the efficiency. Part of mirror inner surface structure which near the evaporation interface would design to be thermal insulated to avoid heat loss from mirror to water. 
+2. **Could we delete the sidewall structure on solar still design?**  
+Sidewall structure in solar still was designed for the tilt glass to collect water. Thus we could change the sidewall material to glass itself to obtain transparent sidewall. That is the pyramid or tubular solar stills. We could also remove the water collection function from the glass cover to obtain a horizontal glass cover, while the steam was exhausted and condensed in another chamber. 
 
 ### Solar Desalination Project in Zhejiang Energy R&D Institute
 
