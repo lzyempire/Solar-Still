@@ -74,21 +74,27 @@ cleandata <- function(SolarWater){
 
 SolarWater_FoamSidewallInter <- read.csv(file = "Foam Sidewall Interfacial Solar Still Water Production.csv", header = FALSE, stringsAsFactors = FALSE)
 hourlywater_FoamSidewallInter <- cleandata(SolarWater_FoamSidewallInter)
+write.csv(hourlywater_FoamSidewallInter, file = "Foam Sidewall Interfacial Solar Still Hourly Water Production.csv")
 
 SolarWater_FoamBottomInter <- read.csv(file = "Foam Bottom Interfacial Solar Still Water Production.csv", header = FALSE, stringsAsFactors = FALSE)
 hourlywater_FoamBottomInter <- cleandata(SolarWater_FoamBottomInter)
+write.csv(hourlywater_FoamBottomInter, file = "Foam Bottom Interfacial Solar Still Hourly Water Production.csv")
 
 SolarWater_SidewallInter <- read.csv(file = "Sidewall Interfacial Solar Still Water Production.csv", header = FALSE, stringsAsFactors = FALSE)
 hourlywater_SidewallInter <- cleandata(SolarWater_SidewallInter)
+write.csv(hourlywater_SidewallInter, file = "Sidewall Interfacial Solar Still Hourly Water Production.csv")
 
 SolarWater_BottomInter <- read.csv(file = "Bottom Interfacial Solar Still Water Production.csv", header = FALSE, stringsAsFactors = FALSE)
 hourlywater_BottomInter <- cleandata(SolarWater_BottomInter)
+write.csv(hourlywater_BottomInter, file = "Bottom Interfacial Solar Still Hourly Water Production.csv")
 
 SolarWater_SidewallHeat <- read.csv(file = "Sidewall Bottom Heating Solar Still Water Production.csv", header = FALSE, stringsAsFactors = FALSE)
 hourlywater_SidewallHeat <- cleandata(SolarWater_SidewallHeat)
+write.csv(hourlywater_SidewallHeat, file = "Sidewall Bottom Heating Solar Still Hourly Water Production.csv")
 
 SolarWater_BottomHeat <- read.csv(file = "Bottom Heating Solar Still Water Production.csv", header = FALSE, stringsAsFactors = FALSE)
 hourlywater_BottomHeat <- cleandata(SolarWater_BottomHeat)
+write.csv(hourlywater_BottomHeat, file = "Bottom Heating Solar Still Hourly Water Production.csv")
 
 meltcol <- function(colnames){
   mergecolselect <- rbind(rbind(rbind(rbind(rbind(
@@ -139,6 +145,8 @@ hourlywater_Percentage <- rbind(hourlywater_Percentage, Percentage_solar)
 # DeltaPercentage_solar$Time <- as.numeric(as.character(DeltaPercentage_solar$Time))
 # hourlywater_TransPercentage$Time <- hourlywater_TransPercentage$Time/hm("1:00")
 # hourlywater_TransPercentage <- rbind(hourlywater_TransPercentage, DeltaPercentage_solar)
+
+
 
 library(ggplot2)
 ##g <- ggplot(hourlywater_BottomInter, aes(Time/hm("1:00"), Percentage, color = WaterProduction))
