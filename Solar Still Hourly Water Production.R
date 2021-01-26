@@ -145,6 +145,7 @@ hourlywater_Percentage <- rbind(hourlywater_Percentage, Percentage_solar)
 # DeltaPercentage_solar$Time <- as.numeric(as.character(DeltaPercentage_solar$Time))
 # hourlywater_TransPercentage$Time <- hourlywater_TransPercentage$Time/hm("1:00")
 # hourlywater_TransPercentage <- rbind(hourlywater_TransPercentage, DeltaPercentage_solar)
+# write.csv(hourlywater_Percentage, file = "Hourly Water Percentage.csv")
 
 
 
@@ -180,6 +181,7 @@ PercentageBinomial + geom_point(alpha = 0.1) +
 ##TransEff + geom_point(alpha = 0.5) + geom_smooth(se = FALSE) + labs(x = "Time", y = "Hourly Transient Efficiency/%") + scale_y_continuous(limits = c(0,100))## + scale_x_continuous(limits = c(7,20))
 TransEff <- ggplot(hourlywater_TransEfficiency, aes(Time/hm("1:00"), TransEfficiency, color = Still))
 TransEff + geom_point(alpha = 0.2) + geom_smooth(se = FALSE) + labs(x = "Time", y = "Hourly Transient Efficiency/%") + scale_y_continuous(limits = c(10,70), breaks=seq(0,100,10)) + scale_x_continuous(limits = c(8,20), breaks=seq(0,24,2))
+# write.csv(hourlywater_TransEfficiency, file = "Hourly TransEfficiency.csv")
 
 StillName_Interfacial <- c("Bottom_Interfacial", "Foam_Bottom_Interfacial", "Sidewall_Interfacial", "Foam_Sidewall_Interfacial")
 PowerEff <- ggplot(hourlywater_PowerEfficiency[hourlywater_PowerEfficiency$Still %in% StillName_Interfacial, ], aes(TransSolarPower*1000, TransEfficiency, color = Still))
